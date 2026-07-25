@@ -16,6 +16,8 @@ import {
   type ProgressMetric
 } from '../services/exerciseProgress';
 import { kilogramsToDisplay } from '../utils/number';
+import { useI18n } from '../i18n/useI18n';
+import { translateExerciseName } from '../i18n/translations';
 
 const metricLabels: Record<ProgressMetric, string> = {
   estimatedOneRepMax: 'Estimated 1RM',
@@ -25,6 +27,7 @@ const metricLabels: Record<ProgressMetric, string> = {
 };
 
 export function ExerciseDetailPage() {
+  const { language, t } = useI18n();
   const { exerciseId = '' } = useParams();
   const data = useLiveQuery(async () => {
     const exercise = await db.exercises.get(exerciseId);
@@ -42,13 +45,15 @@ export function ExerciseDetailPage() {
   }, [exerciseId]);
   const [metric, setMetric] = useState<ProgressMetric>('estimatedOneRepMax');
   if (data === undefined)
-    return <LoadingState label="Loading exercise progress" />;
+    return <LoadingState label={t('Loading exercise progress')} />;
   if (data === null)
     return (
       <EmptyState
-        title="Exercise not found"
-        description="This exercise may have been removed from the local database."
-        action={<Link to="/exercises">Back to exercises</Link>}
+        title={t('Exercise not found')}
+        description={t(
+          'This exercise may have been removed from the local database.'
+        )}
+        action={<Link to="/exercises">{t('Back to exercises')}</Link>}
       />
     );
   const { exercise, settings, points } = data;
@@ -58,32 +63,32 @@ export function ExerciseDetailPage() {
   return (
     <section className="page-stack">
       <Link className="back-link" to="/exercises">
-        <ArrowLeft size={18} /> Exercises
+        <ArrowLeft size={18} /> {t('Exercises')}
       </Link>
       <PageHeader
-        eyebrow={exercise.category}
-        title={exercise.name}
+        eyebrow={t(exercise.category)}
+        title={translateExerciseName(language, exercise.name)}
         description={exercise.notes}
       />
       {points.length ? (
         <>
           <div className="exercise-metrics">
             <div>
-              <span>Latest weight</span>
+              <span>{t('Latest weight')}</span>
               <strong>
                 {kilogramsToDisplay(getLatestWorkingWeight(points), unit)}{' '}
                 {unit}
               </strong>
             </div>
             <div>
-              <span>Best weight</span>
+              <span>{t('Best weight')}</span>
               <strong>
                 {kilogramsToDisplay(getAllTimeBest(points, 'bestWeight'), unit)}{' '}
                 {unit}
               </strong>
             </div>
             <div>
-              <span>Best est. 1RM</span>
+              <span>{t('Best est. 1RM')}</span>
               <strong>
                 {kilogramsToDisplay(
                   getAllTimeBest(points, 'estimatedOneRepMax'),
@@ -93,7 +98,7 @@ export function ExerciseDetailPage() {
               </strong>
             </div>
             <div>
-              <span>Latest volume</span>
+              <span>{t('Latest volume')}</span>
               <strong>
                 {kilogramsToDisplay(points.at(-1)?.volume ?? 0, unit)} {unit}
               </strong>
@@ -103,16 +108,16 @@ export function ExerciseDetailPage() {
             <div className="section-heading">
               <div>
                 <h2>
-                  <TrendingUp size={19} /> Progress
+                  <TrendingUp size={19} /> {t('Progress')}
                 </h2>
-                <p>Completed working sets only.</p>
+                <p>{t('Completed working sets only.')}</p>
               </div>
             </div>
             {exercise.trackingType === 'weight-reps' && (
               <div
                 className="segmented-control"
                 role="group"
-                aria-label="Progress metric"
+                aria-label={t('Progress metric')}
               >
                 {(Object.keys(metricLabels) as ProgressMetric[]).map((item) => (
                   <button
@@ -122,7 +127,7 @@ export function ExerciseDetailPage() {
                     onClick={() => setMetric(item)}
                     aria-pressed={metric === item}
                   >
-                    {metricLabels[item]}
+                    {t(metricLabels[item])}
                   </button>
                 ))}
               </div>
@@ -136,11 +141,10 @@ export function ExerciseDetailPage() {
           <div className="section-heading">
             <div>
               <h2>
-                <Award size={19} /> Session history
+                <Award size={19} /> {t('Session history')}
               </h2>
               <p>
-                {points.length} completed{' '}
-                {points.length === 1 ? 'session' : 'sessions'}
+                {t('{{count}} completed sessions', { count: points.length })}
               </p>
             </div>
           </div>
@@ -152,8 +156,10 @@ export function ExerciseDetailPage() {
         </>
       ) : (
         <EmptyState
-          title="No completed sessions yet"
-          description="Record this exercise in a workout to build progress trends and personal records."
+          title={t('No completed sessions yet')}
+          description={t(
+            'Record this exercise in a workout to build progress trends and personal records.'
+          )}
         />
       )}
     </section>

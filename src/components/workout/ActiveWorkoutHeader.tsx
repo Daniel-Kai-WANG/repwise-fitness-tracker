@@ -1,6 +1,7 @@
 import { MoreVertical } from 'lucide-react';
 import { formatDuration } from '../../utils/date';
 import { Button } from '../common/Button';
+import { useI18n } from '../../i18n/useI18n';
 
 interface ActiveWorkoutHeaderProps {
   name: string;
@@ -15,23 +16,26 @@ export function ActiveWorkoutHeader({
   onFinish,
   onCancel
 }: ActiveWorkoutHeaderProps) {
+  const { t } = useI18n();
   return (
     <header className="workout-header">
       <div>
-        <p className="eyebrow">Active · {formatDuration(elapsedSeconds)}</p>
-        <h1>{name}</h1>
+        <p className="eyebrow">
+          {t('Active')} · {formatDuration(elapsedSeconds)}
+        </p>
+        <h1>{t(name)}</h1>
       </div>
       <div className="workout-header__actions">
         <button
           className="icon-button"
           type="button"
           onClick={onCancel}
-          aria-label="Cancel workout"
+          aria-label={t('Cancel workout')}
         >
           <MoreVertical />
         </button>
         <Button type="button" onClick={onFinish}>
-          Finish
+          {t('Finish')}
         </Button>
       </div>
     </header>

@@ -2,8 +2,14 @@ export function nowIso() {
   return new Date().toISOString();
 }
 
+function getDocumentLocale() {
+  return typeof document === 'undefined'
+    ? undefined
+    : document.documentElement.lang || undefined;
+}
+
 export function formatShortDate(value: string) {
-  return new Intl.DateTimeFormat(undefined, {
+  return new Intl.DateTimeFormat(getDocumentLocale(), {
     day: 'numeric',
     month: 'short',
     year: 'numeric'
@@ -11,7 +17,7 @@ export function formatShortDate(value: string) {
 }
 
 export function formatWeekdayDate(value: string | Date) {
-  return new Intl.DateTimeFormat(undefined, {
+  return new Intl.DateTimeFormat(getDocumentLocale(), {
     weekday: 'long',
     day: 'numeric',
     month: 'long'

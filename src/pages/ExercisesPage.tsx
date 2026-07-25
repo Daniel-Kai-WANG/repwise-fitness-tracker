@@ -23,8 +23,11 @@ import {
   type ExerciseCategory,
   type ExerciseDraft
 } from '../types/exercise';
+import { useI18n } from '../i18n/useI18n';
+import { translateExerciseName } from '../i18n/translations';
 
 export function ExercisesPage() {
+  const { language, t } = useI18n();
   const exercises = useLiveQuery(() => db.exercises.orderBy('name').toArray());
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState<ExerciseCategory | 'all'>('all');
@@ -41,9 +44,13 @@ export function ExercisesPage() {
         exercise.isArchived === showArchived &&
         (category === 'all' || exercise.category === category) &&
         (equipment === 'all' || exercise.equipment === equipment) &&
-        (!query || exercise.name.toLowerCase().includes(query))
+        (!query ||
+          exercise.name.toLowerCase().includes(query) ||
+          translateExerciseName(language, exercise.name)
+            .toLowerCase()
+            .includes(query))
     );
-  }, [category, equipment, exercises, search, showArchived]);
+  }, [category, equipment, exercises, language, search, showArchived]);
 
   const handleSubmit = async (draft: ExerciseDraft) => {
     if (editingExercise) await updateExercise(editingExercise.id, draft);
@@ -54,35 +61,35 @@ export function ExercisesPage() {
   return (
     <section className="page-stack">
       <PageHeader
-        eyebrow="Library"
-        title="Exercises"
-        description="Build a focused library for the movements you train."
+        eyebrow={t('Library')}
+        title={t('Exercises')}
+        description={t('Build a focused library for the movements you train.')}
         action={
           <Button
             className="button--icon-text"
             onClick={() => setEditingExercise(null)}
           >
-            <Plus size={18} /> Add
+            <Plus size={18} /> {t('Add')}
           </Button>
         }
       />
       <SearchInput
-        label="Search exercises"
-        placeholder="Search exercises"
+        label={t('Search exercises')}
+        placeholder={t('Search exercises')}
         value={search}
         onChange={setSearch}
       />
-      <div className="filter-row" aria-label="Exercise filters">
+      <div className="filter-row" aria-label={t('Exercise filters')}>
         <select
           value={category}
           onChange={(event) =>
             setCategory(event.target.value as typeof category)
           }
         >
-          <option value="all">All categories</option>
+          <option value="all">{t('All categories')}</option>
           {exerciseCategories.map((item) => (
             <option key={item} value={item}>
-              {item}
+              {t(item)}
             </option>
           ))}
         </select>
@@ -92,10 +99,10 @@ export function ExercisesPage() {
             setEquipment(event.target.value as typeof equipment)
           }
         >
-          <option value="all">All equipment</option>
+          <option value="all">{t('All equipment')}</option>
           {equipmentTypes.map((item) => (
             <option key={item} value={item}>
-              {item}
+              {t(item)}
             </option>
           ))}
         </select>
@@ -105,11 +112,11 @@ export function ExercisesPage() {
           onClick={() => setShowArchived((value) => !value)}
           aria-pressed={showArchived}
         >
-          Archived
+          {t('Archived')}
         </button>
       </div>
       {exercises === undefined ? (
-        <LoadingState label="Loading exercises" />
+        <LoadingState label={t('Loading exercises')} />
       ) : visibleExercises.length ? (
         <div className="card-list">
           {visibleExercises.map((exercise) => (
@@ -125,13 +132,15 @@ export function ExercisesPage() {
         </div>
       ) : (
         <EmptyState
-          title={showArchived ? 'No archived exercises' : 'No exercises found'}
-          description="Try changing the filters or add a custom exercise."
+          title={t(
+            showArchived ? 'No archived exercises' : 'No exercises found'
+          )}
+          description={t('Try changing the filters or add a custom exercise.')}
         />
       )}
       {editingExercise !== undefined && (
         <Modal
-          title={editingExercise ? 'Edit exercise' : 'Add exercise'}
+          title={t(editingExercise ? 'Edit exercise' : 'Add exercise')}
           onClose={() => setEditingExercise(undefined)}
         >
           <ExerciseForm

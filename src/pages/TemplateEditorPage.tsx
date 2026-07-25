@@ -6,8 +6,10 @@ import { TemplateForm } from '../components/templates/TemplateForm';
 import { PageHeader } from '../components/layout/PageHeader';
 import { db } from '../db/database';
 import { saveTemplate } from '../db/repositories/templateRepository';
+import { useI18n } from '../i18n/useI18n';
 
 export function TemplateEditorPage() {
+  const { t } = useI18n();
   const navigate = useNavigate();
   const { templateId } = useParams();
   const data = useLiveQuery(
@@ -17,22 +19,26 @@ export function TemplateEditorPage() {
     }),
     [templateId]
   );
-  if (!data) return <LoadingState label="Loading template editor" />;
+  if (!data) return <LoadingState label={t('Loading template editor')} />;
   if (templateId && !data.template)
     return (
       <EmptyState
-        title="Template not found"
-        description="This template may have been deleted."
+        title={t('Template not found')}
+        description={t('This template may have been deleted.')}
       />
     );
   return (
     <section className="page-stack">
       <PageHeader
-        eyebrow="Template"
+        eyebrow={t('Template')}
         title={
-          data.template ? `Edit ${data.template.name}` : 'New workout template'
+          data.template
+            ? t('Edit {{name}}', { name: data.template.name })
+            : t('New workout template')
         }
-        description="Choose the exercise order and useful starting targets."
+        description={t(
+          'Choose the exercise order and useful starting targets.'
+        )}
       />
       <TemplateForm
         template={data.template}

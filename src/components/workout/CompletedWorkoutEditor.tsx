@@ -13,6 +13,8 @@ import { getLocalDateKey, nowIso } from '../../utils/date';
 import { createId } from '../../utils/ids';
 import { displayToKilograms, kilogramsToDisplay } from '../../utils/number';
 import { Button } from '../common/Button';
+import { useI18n } from '../../i18n/useI18n';
+import { translateExerciseName } from '../../i18n/translations';
 
 interface CompletedWorkoutEditorProps {
   bundle: WorkoutBundle;
@@ -33,6 +35,7 @@ export function CompletedWorkoutEditor({
   onCancel,
   onSaved
 }: CompletedWorkoutEditorProps) {
+  const { language, t } = useI18n();
   const [draft, setDraft] = useState(() => createCompletedWorkoutDraft(bundle));
   const [error, setError] = useState<string>();
   const [isSaving, setIsSaving] = useState(false);
@@ -108,8 +111,8 @@ export function CompletedWorkoutEditor({
     } catch (caughtError) {
       setError(
         caughtError instanceof Error
-          ? caughtError.message
-          : 'The workout could not be saved.'
+          ? t(caughtError.message)
+          : t('The workout could not be saved.')
       );
       setIsSaving(false);
     }
@@ -118,12 +121,13 @@ export function CompletedWorkoutEditor({
   return (
     <div className="completed-workout-editor page-stack">
       <div className="edit-warning" role="note">
-        Editing completed data recalculates workout analytics, personal records,
-        previous-session comparisons, and progress charts.
+        {t(
+          'Editing completed data recalculates workout analytics, personal records, previous-session comparisons, and progress charts.'
+        )}
       </div>
       <div className="field-grid">
         <label className="field">
-          <span>Workout name</span>
+          <span>{t('Workout name')}</span>
           <input
             value={draft.name}
             maxLength={80}
@@ -133,7 +137,7 @@ export function CompletedWorkoutEditor({
           />
         </label>
         <label className="field">
-          <span>Workout date</span>
+          <span>{t('Workout date')}</span>
           <input
             type="date"
             value={getLocalDateKey(draft.completedAt)}
@@ -144,7 +148,7 @@ export function CompletedWorkoutEditor({
         </label>
       </div>
       <label className="field">
-        <span>Workout notes</span>
+        <span>{t('Workout notes')}</span>
         <textarea
           rows={3}
           value={draft.notes ?? ''}
@@ -155,16 +159,20 @@ export function CompletedWorkoutEditor({
       </label>
       {draft.exercises.map((workoutExercise, exerciseIndex) => {
         const exercise = exerciseMap.get(workoutExercise.exerciseId);
+        const exerciseName = translateExerciseName(
+          language,
+          exercise?.name ?? t('Missing exercise')
+        );
         return (
           <article className="completed-edit-exercise" key={workoutExercise.id}>
             <div className="completed-edit-exercise__header">
-              <h2>{exercise?.name ?? 'Missing exercise'}</h2>
+              <h2>{exerciseName}</h2>
               <div className="compact-actions">
                 <button
                   type="button"
                   disabled={exerciseIndex === 0}
                   onClick={() => moveExercise(exerciseIndex, -1)}
-                  aria-label={`Move ${exercise?.name ?? 'exercise'} up`}
+                  aria-label={t('Move {{name}} up', { name: exerciseName })}
                 >
                   <ArrowUp size={17} />
                 </button>
@@ -172,7 +180,7 @@ export function CompletedWorkoutEditor({
                   type="button"
                   disabled={exerciseIndex === draft.exercises.length - 1}
                   onClick={() => moveExercise(exerciseIndex, 1)}
-                  aria-label={`Move ${exercise?.name ?? 'exercise'} down`}
+                  aria-label={t('Move {{name}} down', { name: exerciseName })}
                 >
                   <ArrowDown size={17} />
                 </button>
@@ -181,7 +189,9 @@ export function CompletedWorkoutEditor({
                   onClick={() => {
                     if (
                       window.confirm(
-                        `Remove ${exercise?.name ?? 'this exercise'} and all of its sets?`
+                        t('Remove {{name}} and all of its sets?', {
+                          name: exerciseName
+                        })
                       )
                     ) {
                       setDraft({
@@ -192,7 +202,7 @@ export function CompletedWorkoutEditor({
                       });
                     }
                   }}
-                  aria-label={`Remove ${exercise?.name ?? 'exercise'}`}
+                  aria-label={t('Remove {{name}}', { name: exerciseName })}
                 >
                   <Trash2 size={17} />
                 </button>
@@ -206,7 +216,10 @@ export function CompletedWorkoutEditor({
                     <label>
                       <span>{unit.toUpperCase()}</span>
                       <input
-                        aria-label={`${exercise.name} set ${set.setNumber} weight`}
+                        aria-label={t('{{name}} set {{number}} weight', {
+                          name: exerciseName,
+                          number: set.setNumber
+                        })}
                         inputMode="decimal"
                         type="number"
                         min="0"
@@ -230,9 +243,12 @@ export function CompletedWorkoutEditor({
                   )}
                   {exercise?.trackingType !== 'duration' && (
                     <label>
-                      <span>Reps</span>
+                      <span>{t('Reps')}</span>
                       <input
-                        aria-label={`${exercise?.name ?? 'Exercise'} set ${set.setNumber} repetitions`}
+                        aria-label={t('{{name}} set {{number}} repetitions', {
+                          name: exerciseName,
+                          number: set.setNumber
+                        })}
                         inputMode="numeric"
                         type="number"
                         min="0"
@@ -248,9 +264,12 @@ export function CompletedWorkoutEditor({
                   )}
                   {exercise?.trackingType === 'duration' && (
                     <label className="completed-edit-set__duration">
-                      <span>Seconds</span>
+                      <span>{t('Seconds')}</span>
                       <input
-                        aria-label={`${exercise.name} set ${set.setNumber} duration`}
+                        aria-label={t('{{name}} set {{number}} duration', {
+                          name: exerciseName,
+                          number: set.setNumber
+                        })}
                         inputMode="numeric"
                         type="number"
                         min="0"
@@ -274,7 +293,7 @@ export function CompletedWorkoutEditor({
                         })
                       }
                     />
-                    <span>Warm-up</span>
+                    <span>{t('Warm-up')}</span>
                   </label>
                   <button
                     className="icon-button"
@@ -285,7 +304,10 @@ export function CompletedWorkoutEditor({
                         sets: current.sets.filter((item) => item.id !== set.id)
                       }))
                     }
-                    aria-label={`Remove set ${set.setNumber} from ${exercise?.name ?? 'exercise'}`}
+                    aria-label={t('Remove set {{number}} from {{name}}', {
+                      number: set.setNumber,
+                      name: exerciseName
+                    })}
                   >
                     <Trash2 size={17} />
                   </button>
@@ -298,7 +320,7 @@ export function CompletedWorkoutEditor({
               fullWidth
               onClick={() => addSet(workoutExercise)}
             >
-              <Plus size={17} /> Add set
+              <Plus size={17} /> {t('Add set')}
             </Button>
           </article>
         );
@@ -310,10 +332,10 @@ export function CompletedWorkoutEditor({
       )}
       <div className="edit-workout-actions">
         <Button type="button" variant="secondary" onClick={onCancel}>
-          Cancel editing
+          {t('Cancel editing')}
         </Button>
         <Button type="button" disabled={isSaving} onClick={handleSave}>
-          {isSaving ? 'Saving…' : 'Save workout'}
+          {t(isSaving ? 'Saving…' : 'Save workout')}
         </Button>
       </div>
     </div>

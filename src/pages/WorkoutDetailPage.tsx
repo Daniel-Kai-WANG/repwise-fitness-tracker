@@ -14,8 +14,10 @@ import {
   getWorkoutBundle,
   repeatWorkout
 } from '../db/repositories/workoutRepository';
+import { useI18n } from '../i18n/useI18n';
 
 export function WorkoutDetailPage() {
+  const { t } = useI18n();
   const { workoutId = '' } = useParams();
   const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(false);
@@ -30,19 +32,19 @@ export function WorkoutDetailPage() {
       : null;
   }, [workoutId]);
   if (data === undefined)
-    return <LoadingState label="Loading workout details" />;
+    return <LoadingState label={t('Loading workout details')} />;
   if (data === null)
     return (
       <EmptyState
-        title="Workout not found"
-        description="It may have been deleted from local history."
-        action={<Link to="/history">Back to history</Link>}
+        title={t('Workout not found')}
+        description={t('It may have been deleted from local history.')}
+        action={<Link to="/history">{t('Back to history')}</Link>}
       />
     );
   return (
     <section className="page-stack">
       <Link className="back-link" to="/history">
-        <ArrowLeft size={18} /> History
+        <ArrowLeft size={18} /> {t('History')}
       </Link>
       {isEditing ? (
         <CompletedWorkoutEditor
@@ -61,13 +63,13 @@ export function WorkoutDetailPage() {
           />
           {data.bundle.workout.notes && (
             <div className="workout-notes">
-              <h2>Notes</h2>
+              <h2>{t('Notes')}</h2>
               <p>{data.bundle.workout.notes}</p>
             </div>
           )}
           <div className="detail-actions">
             <Button variant="secondary" onClick={() => setIsEditing(true)}>
-              <Edit3 size={17} /> Edit workout
+              <Edit3 size={17} /> {t('Edit workout')}
             </Button>
             <Button
               variant="secondary"
@@ -78,20 +80,22 @@ export function WorkoutDetailPage() {
                 } catch (error) {
                   window.alert(
                     error instanceof Error
-                      ? error.message
-                      : 'Unable to repeat workout.'
+                      ? t(error.message)
+                      : t('Unable to repeat workout.')
                   );
                 }
               }}
             >
-              <Repeat2 size={17} /> Repeat
+              <Repeat2 size={17} /> {t('Repeat')}
             </Button>
             <Button
               variant="danger"
               onClick={async () => {
                 if (
                   window.confirm(
-                    `Delete ${data.bundle.workout.name}? This cannot be undone.`
+                    t('Delete {{name}}? This cannot be undone.', {
+                      name: data.bundle.workout.name
+                    })
                   )
                 ) {
                   await deleteWorkout(workoutId);
@@ -99,7 +103,7 @@ export function WorkoutDetailPage() {
                 }
               }}
             >
-              <Trash2 size={17} /> Delete
+              <Trash2 size={17} /> {t('Delete')}
             </Button>
           </div>
         </>

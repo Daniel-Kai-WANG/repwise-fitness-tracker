@@ -3,6 +3,8 @@ import { useMemo, useState } from 'react';
 import type { Exercise } from '../../types/exercise';
 import { Modal } from '../common/Modal';
 import { SearchInput } from '../common/SearchInput';
+import { useI18n } from '../../i18n/useI18n';
+import { translateExerciseName } from '../../i18n/translations';
 
 interface AddExerciseSheetProps {
   exercises: Exercise[];
@@ -19,6 +21,7 @@ export function AddExerciseSheet({
   onSelect,
   onClose
 }: AddExerciseSheetProps) {
+  const { language, t } = useI18n();
   const [search, setSearch] = useState('');
   const visible = useMemo(() => {
     const query = search.trim().toLowerCase();
@@ -26,15 +29,19 @@ export function AddExerciseSheet({
       (exercise) =>
         !exercise.isArchived &&
         !excludedIds.includes(exercise.id) &&
-        (!query || exercise.name.toLowerCase().includes(query))
+        (!query ||
+          exercise.name.toLowerCase().includes(query) ||
+          translateExerciseName(language, exercise.name)
+            .toLowerCase()
+            .includes(query))
     );
-  }, [excludedIds, exercises, search]);
+  }, [excludedIds, exercises, language, search]);
   return (
-    <Modal title={title} onClose={onClose}>
+    <Modal title={t(title)} onClose={onClose}>
       <div className="page-stack">
         <SearchInput
-          label="Search exercise library"
-          placeholder="Search exercises"
+          label={t('Search exercise library')}
+          placeholder={t('Search exercises')}
           value={search}
           onChange={setSearch}
         />
@@ -46,9 +53,11 @@ export function AddExerciseSheet({
               onClick={() => onSelect(exercise)}
             >
               <span>
-                <strong>{exercise.name}</strong>
+                <strong>
+                  {translateExerciseName(language, exercise.name)}
+                </strong>
                 <small>
-                  {exercise.category} · {exercise.equipment}
+                  {t(exercise.category)} · {t(exercise.equipment)}
                 </small>
               </span>
               <Search size={18} />

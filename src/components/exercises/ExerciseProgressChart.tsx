@@ -14,6 +14,7 @@ import type {
 import type { WeightUnit } from '../../types/settings';
 import { formatShortDate } from '../../utils/date';
 import { kilogramsToDisplay } from '../../utils/number';
+import { useI18n } from '../../i18n/useI18n';
 
 interface ExerciseProgressChartProps {
   points: ExerciseProgressPoint[];
@@ -26,6 +27,7 @@ export function ExerciseProgressChart({
   metric,
   unit
 }: ExerciseProgressChartProps) {
+  const { t } = useI18n();
   const weightMetric = metric !== 'totalRepetitions';
   const chartData = points.map((point) => ({
     ...point,
@@ -37,12 +39,15 @@ export function ExerciseProgressChart({
   if (!chartData.length)
     return (
       <div className="chart-empty">
-        <strong>No progress data yet</strong>
-        <span>Complete a working set to add the first point.</span>
+        <strong>{t('No progress data yet')}</strong>
+        <span>{t('Complete a working set to add the first point.')}</span>
       </div>
     );
   return (
-    <div className="progress-chart" aria-label={`Exercise ${metric} chart`}>
+    <div
+      className="progress-chart"
+      aria-label={t('Exercise {{metric}} chart', { metric: t(metric) })}
+    >
       <ResponsiveContainer width="100%" height={250}>
         <LineChart
           data={chartData}
@@ -70,8 +75,8 @@ export function ExerciseProgressChart({
               color: 'var(--color-text-primary)'
             }}
             formatter={(value) => [
-              `${value}${weightMetric ? ` ${unit}` : ' reps'}`,
-              'Result'
+              `${value}${weightMetric ? ` ${unit}` : ` ${t('reps')}`}`,
+              t('Result')
             ]}
           />
           <Line

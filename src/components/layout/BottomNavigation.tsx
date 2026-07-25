@@ -1,5 +1,6 @@
 import { Activity, Dumbbell, History, Home, Settings } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
+import { useI18n } from '../../i18n/useI18n';
 
 const items = [
   { to: '/', label: 'Home', icon: Home, end: true },
@@ -10,8 +11,9 @@ const items = [
 ];
 
 export function BottomNavigation() {
+  const { t } = useI18n();
   return (
-    <nav className="bottom-nav" aria-label="Primary navigation">
+    <nav className="bottom-nav" aria-label={t('Primary navigation')}>
       {items.map(({ to, label, icon: Icon, primary, end }) => (
         <NavLink
           key={to}
@@ -28,7 +30,7 @@ export function BottomNavigation() {
           }
         >
           <Icon aria-hidden="true" size={21} strokeWidth={2.2} />
-          <span>{label}</span>
+          <span>{t(label)}</span>
         </NavLink>
       ))}
     </nav>

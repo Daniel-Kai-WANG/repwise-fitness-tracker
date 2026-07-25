@@ -15,6 +15,8 @@ import { Button } from '../common/Button';
 import { Card } from '../common/Card';
 import { PreviousPerformance } from './PreviousPerformance';
 import { SetRow } from './SetRow';
+import { useI18n } from '../../i18n/useI18n';
+import { translateExerciseName } from '../../i18n/translations';
 
 interface ExerciseWorkoutCardProps {
   workoutExercise: WorkoutExercise;
@@ -41,6 +43,8 @@ export function ExerciseWorkoutCard({
   onReplace,
   onSetCompleted
 }: ExerciseWorkoutCardProps) {
+  const { language, t } = useI18n();
+  const exerciseName = translateExerciseName(language, exercise.name);
   const [showActions, setShowActions] = useState(false);
   const handleAddSet = async () => {
     const lastCurrent = sets.at(-1);
@@ -62,14 +66,14 @@ export function ExerciseWorkoutCard({
     <Card className="workout-exercise-card">
       <div className="workout-exercise-card__header">
         <div>
-          <h2>{exercise.name}</h2>
+          <h2>{exerciseName}</h2>
           {workoutExercise.notes && <p>{workoutExercise.notes}</p>}
         </div>
         <button
           className="icon-button"
           type="button"
           onClick={() => setShowActions((value) => !value)}
-          aria-label={`${exercise.name} actions`}
+          aria-label={t('{{name}} actions', { name: exerciseName })}
           aria-expanded={showActions}
         >
           <MoreHorizontal />
@@ -88,7 +92,7 @@ export function ExerciseWorkoutCard({
               )
             }
           >
-            <ArrowUp size={16} /> Up
+            <ArrowUp size={16} /> {t('Up')}
           </button>
           <button
             type="button"
@@ -101,48 +105,51 @@ export function ExerciseWorkoutCard({
               )
             }
           >
-            <ArrowDown size={16} /> Down
+            <ArrowDown size={16} /> {t('Down')}
           </button>
           <button
             type="button"
             onClick={() => {
               const notes = window.prompt(
-                'Exercise notes',
+                t('Exercise notes'),
                 workoutExercise.notes ?? ''
               );
               if (notes !== null)
                 updateWorkoutExercise(workoutExercise.id, { notes });
             }}
           >
-            Note
+            {t('Note')}
           </button>
           <button type="button" onClick={onReplace}>
-            Replace
+            {t('Replace')}
           </button>
           <button
             type="button"
             onClick={() =>
-              window.confirm(`Remove ${exercise.name} from this workout?`) &&
-              removeWorkoutExercise(workoutExercise.id)
+              window.confirm(
+                t('Remove {{name}} from this workout?', {
+                  name: exerciseName
+                })
+              ) && removeWorkoutExercise(workoutExercise.id)
             }
           >
-            Remove
+            {t('Remove')}
           </button>
         </div>
       )}
       <PreviousPerformance sets={previousSets} unit={unit} />
       <div className="set-table-header">
-        <span>Set</span>
-        <span>Previous</span>
+        <span>{t('Set')}</span>
+        <span>{t('Previous')}</span>
         <span>
           {exercise.trackingType === 'duration'
-            ? 'Seconds'
+            ? t('Seconds')
             : exercise.trackingType === 'reps-only'
-              ? 'Reps'
+              ? t('Reps')
               : unit.toUpperCase()}
         </span>
-        {exercise.trackingType === 'weight-reps' && <span>Reps</span>}
-        <span>Done</span>
+        {exercise.trackingType === 'weight-reps' && <span>{t('Reps')}</span>}
+        <span>{t('Done')}</span>
         <span />
       </div>
       <div className="set-list">
@@ -158,8 +165,9 @@ export function ExerciseWorkoutCard({
                   trackingType={exercise.trackingType}
                   unit={unit}
                   onDelete={() =>
-                    window.confirm(`Delete set ${set.setNumber}?`) &&
-                    deleteWorkoutSet(set.id)
+                    window.confirm(
+                      t('Delete set {{number}}?', { number: set.setNumber })
+                    ) && deleteWorkoutSet(set.id)
                   }
                   onCompleted={(completedSet) =>
                     onSetCompleted(completedSet, previousSets)
@@ -175,7 +183,7 @@ export function ExerciseWorkoutCard({
                   }
                   aria-pressed={set.isWarmup}
                 >
-                  {set.isWarmup ? 'Warm-up' : 'Mark warm-up'}
+                  {t(set.isWarmup ? 'Warm-up' : 'Mark warm-up')}
                 </button>
               </div>
             );
@@ -187,7 +195,7 @@ export function ExerciseWorkoutCard({
         fullWidth
         onClick={handleAddSet}
       >
-        <Plus size={18} /> Add set
+        <Plus size={18} /> {t('Add set')}
       </Button>
     </Card>
   );

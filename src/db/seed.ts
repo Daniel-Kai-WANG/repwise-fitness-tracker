@@ -81,6 +81,7 @@ export function createDefaultSettings(): AppSettings {
     id: 'app-settings',
     weightUnit: 'kg',
     theme: 'system',
+    language: 'system',
     defaultRestSeconds: 90,
     showWarmupSets: true,
     hasCompletedOnboarding: false,

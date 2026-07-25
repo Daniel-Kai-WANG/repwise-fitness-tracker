@@ -1,7 +1,9 @@
 import { useRegisterSW } from 'virtual:pwa-register/react';
 import { Button } from './Button';
+import { useI18n } from '../../i18n/useI18n';
 
 export function UpdateBanner() {
+  const { t } = useI18n();
   const {
     needRefresh: [needRefresh, setNeedRefresh],
     updateServiceWorker
@@ -15,14 +17,14 @@ export function UpdateBanner() {
   if (!needRefresh) return null;
   return (
     <div className="update-banner" role="status">
-      <span>A new version is available.</span>
-      <Button onClick={() => updateServiceWorker(true)}>Update</Button>
+      <span>{t('A new version is available.')}</span>
+      <Button onClick={() => updateServiceWorker(true)}>{t('Update')}</Button>
       <button
         type="button"
         onClick={() => setNeedRefresh(false)}
-        aria-label="Dismiss update"
+        aria-label={t('Dismiss update')}
       >
-        Later
+        {t('Later')}
       </button>
     </div>
   );

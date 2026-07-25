@@ -15,6 +15,8 @@ Repwise is a mobile-first, local-first workout tracking Progressive Web App. It 
 - Switch between best weight, estimated 1RM, volume, and repetition trends.
 - Store kilograms canonically while displaying kilograms or pounds.
 - Use light, dark, or system appearance.
+- Use English, Simplified Chinese, or automatic device-language selection.
+- Follow the built-in bilingual guide for installation, daily workout recording, progress, templates, and backups.
 - Preview, merge, or transactionally replace local data from a validated JSON backup.
 - Install the PWA and use its core features offline after the first successful visit.
 
@@ -69,6 +71,7 @@ The GitHub Actions workflow determines this path automatically from `GITHUB_REPO
 - `src/db` owns the Dexie schema, seeding, and persistence operations.
 - `src/services` contains pure workout calculations, progression analysis, personal records, validation, and backup logic.
 - `src/components` contains reusable layout, form, exercise, template, and workout UI.
+- `src/i18n` contains the language provider, translation dictionary, and default-exercise translations.
 - `src/pages` composes data queries and feature components for each route.
 - `src/types` defines persisted entities and transfer formats.
 - `src/styles` defines semantic design tokens and responsive component styles.
@@ -96,7 +99,11 @@ The deployment workflow is `.github/workflows/deploy.yml` and runs on pushes to 
 
 For a repository named `mobile-fitness-tracker`, the project-site URL has the form `https://ACCOUNT.github.io/mobile-fitness-tracker/`. A repository named `ACCOUNT.github.io` is served from `https://ACCOUNT.github.io/`.
 
-The local repository does not have a GitHub remote yet, so deployment cannot be confirmed until it is pushed and the workflow runs.
+The production deployment is available at <https://daniel-kai-wang.github.io/repwise-fitness-tracker/>.
+
+## Language
+
+Repwise follows the device language by default. Open **Settings → Language** to choose **English**, **中文**, or return to automatic device-language selection. The preference is stored with the rest of the local app settings and is included in JSON backups.
 
 ## Install on iPhone
 

@@ -23,8 +23,11 @@ import {
   startOfLocalWeek
 } from '../utils/date';
 import { formatVolume, kilogramsToDisplay } from '../utils/number';
+import { useI18n } from '../i18n/useI18n';
+import { translateExerciseName } from '../i18n/translations';
 
 export function DashboardPage() {
+  const { language, t } = useI18n();
   const data = useLiveQuery(async () => {
     const [workouts, workoutExercises, sets, exercises, settings] =
       await Promise.all([
@@ -36,7 +39,7 @@ export function DashboardPage() {
       ]);
     return { workouts, workoutExercises, sets, exercises, settings };
   });
-  if (!data) return <LoadingState label="Loading training overview" />;
+  if (!data) return <LoadingState label={t('Loading training overview')} />;
   const completed = data.workouts
     .filter((workout) => workout.status === 'completed')
     .sort((a, b) => b.startedAt.localeCompare(a.startedAt));
@@ -76,14 +79,24 @@ export function DashboardPage() {
         return [
           {
             exercise,
-            label: `Estimated 1RM +${kilogramsToDisplay(current.estimatedOneRepMax - previous.estimatedOneRepMax, data.settings.weightUnit)} ${data.settings.weightUnit}`
+            label: t('Estimated 1RM +{{value}} {{unit}}', {
+              value: kilogramsToDisplay(
+                current.estimatedOneRepMax - previous.estimatedOneRepMax,
+                data.settings.weightUnit
+              ),
+              unit: data.settings.weightUnit
+            })
           }
         ];
       if (current.volume > previous.volume && previous.volume > 0)
         return [
           {
             exercise,
-            label: `Volume +${Math.round(((current.volume - previous.volume) / previous.volume) * 100)}%`
+            label: t('Volume +{{percent}}%', {
+              percent: Math.round(
+                ((current.volume - previous.volume) / previous.volume) * 100
+              )
+            })
           }
         ];
       return [];
@@ -95,81 +108,84 @@ export function DashboardPage() {
       <header className="dashboard-header">
         <div>
           <p className="eyebrow">{formatWeekdayDate(new Date())}</p>
-          <h1>Training</h1>
+          <h1>{t('Training')}</h1>
         </div>
-        <Link className="icon-button" to="/settings" aria-label="Settings">
+        <Link className="icon-button" to="/settings" aria-label={t('Settings')}>
           <Settings size={22} />
         </Link>
       </header>
       {active.length > 0 ? (
         <Card className="dashboard-resume">
           <div>
-            <span className="status-dot" /> Workout in progress
+            <span className="status-dot" /> {t('Workout in progress')}
           </div>
           <h2>{active[0].name}</h2>
           <p>
-            Started{' '}
-            {new Date(active[0].startedAt).toLocaleTimeString([], {
-              hour: 'numeric',
-              minute: '2-digit'
-            })}
+            {t('Started')}{' '}
+            {new Date(active[0].startedAt).toLocaleTimeString(
+              language === 'zh' ? 'zh-CN' : 'en',
+              {
+                hour: 'numeric',
+                minute: '2-digit'
+              }
+            )}
           </p>
           <Link
             className="button button--primary button--full"
             to={`/workout/active/${active[0].id}`}
           >
-            Resume workout <ArrowRight size={18} />
+            {t('Resume workout')} <ArrowRight size={18} />
           </Link>
         </Card>
       ) : (
         <Link className="dashboard-start" to="/workout/start">
           <Dumbbell size={28} />
           <span>
-            <strong>Start workout</strong>
-            <small>Record your next working set</small>
+            <strong>{t('Start workout')}</strong>
+            <small>{t('Record your next working set')}</small>
           </span>
           <ArrowRight size={22} />
         </Link>
       )}
       <div className="section-heading">
         <div>
-          <h2>This week</h2>
-          <p>Since Monday</p>
+          <h2>{t('This week')}</h2>
+          <p>{t('Since Monday')}</p>
         </div>
       </div>
       <div className="weekly-grid">
         <div>
           <CalendarDays size={18} />
           <strong>{weeklyWorkouts.length}</strong>
-          <span>Workouts</span>
+          <span>{t('Workouts')}</span>
         </div>
         <div>
           <Dumbbell size={18} />
           <strong>{weeklySummary.completedSets}</strong>
-          <span>Sets</span>
+          <span>{t('Sets')}</span>
         </div>
         <div>
           <Trophy size={18} />
           <strong>
             {formatVolume(weeklySummary.volume, data.settings.weightUnit)}
           </strong>
-          <span>Volume</span>
+          <span>{t('Volume')}</span>
         </div>
         <div>
           <Clock3 size={18} />
           <strong>{formatDuration(weeklyDuration)}</strong>
-          <span>Training</span>
+          <span>{t('Training')}</span>
         </div>
       </div>
       {recent && recentSummary ? (
         <>
           <div className="section-heading">
             <div>
-              <h2>Recent workout</h2>
-              <p>Your last completed session</p>
+              <h2>{t('Recent workout')}</h2>
+              <p>{t('Your last completed session')}</p>
             </div>
             <Link className="text-link" to="/history">
-              All history
+              {t('All history')}
             </Link>
           </div>
           <Card className="recent-workout">
@@ -178,11 +194,16 @@ export function DashboardPage() {
                 <p className="eyebrow">
                   {formatShortDate(recent.completedAt ?? recent.startedAt)}
                 </p>
-                <h2>{recent.name}</h2>
+                <h2>{t(recent.name)}</h2>
                 <p>
-                  {recentSummary.exerciseCount} exercises ·{' '}
-                  {recentSummary.completedSets} sets ·{' '}
-                  {formatDuration(recent.durationSeconds)}
+                  {t('{{count}} exercises', {
+                    count: recentSummary.exerciseCount
+                  })}{' '}
+                  ·{' '}
+                  {t('{{count}} sets', {
+                    count: recentSummary.completedSets
+                  })}{' '}
+                  · {formatDuration(recent.durationSeconds)}
                 </p>
               </div>
               <strong>
@@ -193,15 +214,17 @@ export function DashboardPage() {
         </>
       ) : (
         <EmptyState
-          title="Ready for your first workout"
-          description="Start an empty session or build a reusable template. Your records stay on this device."
+          title={t('Ready for your first workout')}
+          description={t(
+            'Start an empty session or build a reusable template. Your records stay on this device.'
+          )}
           action={
             <div className="empty-actions">
               <Link className="button button--primary" to="/workout/start">
-                Start workout
+                {t('Start workout')}
               </Link>
               <Link className="button button--secondary" to="/templates/new">
-                Create template
+                {t('Create template')}
               </Link>
             </div>
           }
@@ -211,8 +234,8 @@ export function DashboardPage() {
         <>
           <div className="section-heading">
             <div>
-              <h2>Recent progress</h2>
-              <p>Changes from the prior session</p>
+              <h2>{t('Recent progress')}</h2>
+              <p>{t('Changes from the prior session')}</p>
             </div>
           </div>
           <div className="progress-feed">
@@ -220,7 +243,9 @@ export function DashboardPage() {
               <Link key={exercise.id} to={`/exercises/${exercise.id}`}>
                 <Sparkles size={18} />
                 <span>
-                  <strong>{exercise.name}</strong>
+                  <strong>
+                    {translateExerciseName(language, exercise.name)}
+                  </strong>
                   <small>{label}</small>
                 </span>
                 <ArrowRight size={17} />

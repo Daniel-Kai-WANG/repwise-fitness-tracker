@@ -125,6 +125,10 @@ function hasRequiredFields(
         (value.theme === 'light' ||
           value.theme === 'dark' ||
           value.theme === 'system') &&
+        (value.language === undefined ||
+          value.language === 'system' ||
+          value.language === 'en' ||
+          value.language === 'zh') &&
         Number.isInteger(value.defaultRestSeconds) &&
         Number(value.defaultRestSeconds) >= 0 &&
         Number(value.defaultRestSeconds) <= 3600 &&

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import type { WorkoutTemplate } from '../../types/template';
 import { Button } from '../common/Button';
 import { Card } from '../common/Card';
+import { useI18n } from '../../i18n/useI18n';
 
 interface TemplateCardProps {
   template: WorkoutTemplate;
@@ -17,13 +18,18 @@ export function TemplateCard({
   onStart,
   onDelete
 }: TemplateCardProps) {
+  const { t } = useI18n();
   return (
     <Card className="template-card">
       <div className="template-card__content">
         <div>
-          <p className="eyebrow">{template.exercises.length} exercises</p>
+          <p className="eyebrow">
+            {t('{{count}} exercises', { count: template.exercises.length })}
+          </p>
           <h2>{template.name}</h2>
-          <p>{exerciseNames.slice(0, 3).join(' · ') || 'No exercises yet'}</p>
+          <p>
+            {exerciseNames.slice(0, 3).join(' · ') || t('No exercises yet')}
+          </p>
         </div>
         <Dumbbell size={24} aria-hidden="true" />
       </div>
@@ -31,18 +37,18 @@ export function TemplateCard({
         <button
           type="button"
           onClick={onDelete}
-          aria-label={`Delete ${template.name}`}
+          aria-label={t('Delete {{name}}', { name: template.name })}
         >
-          <Trash2 size={17} /> Delete
+          <Trash2 size={17} /> {t('Delete')}
         </button>
         <Link
           className="button button--secondary"
           to={`/templates/${template.id}/edit`}
         >
-          <Edit3 size={17} /> Edit
+          <Edit3 size={17} /> {t('Edit')}
         </Link>
         <Button type="button" onClick={onStart}>
-          Start
+          {t('Start')}
         </Button>
       </div>
     </Card>

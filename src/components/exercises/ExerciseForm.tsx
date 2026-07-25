@@ -7,6 +7,7 @@ import {
 } from '../../types/exercise';
 import { validateName } from '../../services/validation';
 import { Button } from '../common/Button';
+import { useI18n } from '../../i18n/useI18n';
 
 interface ExerciseFormProps {
   exercise?: Exercise;
@@ -19,6 +20,7 @@ export function ExerciseForm({
   onSubmit,
   onCancel
 }: ExerciseFormProps) {
+  const { t } = useI18n();
   const [draft, setDraft] = useState<ExerciseDraft>({
     name: exercise?.name ?? '',
     category: exercise?.category ?? 'other',
@@ -32,7 +34,7 @@ export function ExerciseForm({
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
     const nameError = validateName(draft.name);
-    if (nameError) return setError(nameError);
+    if (nameError) return setError(t(nameError));
     setIsSaving(true);
     setError(undefined);
     try {
@@ -40,8 +42,8 @@ export function ExerciseForm({
     } catch (caughtError) {
       setError(
         caughtError instanceof Error
-          ? caughtError.message
-          : 'Unable to save exercise.'
+          ? t(caughtError.message)
+          : t('Unable to save exercise.')
       );
       setIsSaving(false);
     }
@@ -50,7 +52,7 @@ export function ExerciseForm({
   return (
     <form className="form-stack" onSubmit={handleSubmit}>
       <label className="field">
-        <span>Name</span>
+        <span>{t('Name')}</span>
         <input
           autoFocus
           value={draft.name}
@@ -62,7 +64,7 @@ export function ExerciseForm({
       </label>
       <div className="field-grid">
         <label className="field">
-          <span>Category</span>
+          <span>{t('Category')}</span>
           <select
             value={draft.category}
             onChange={(event) =>
@@ -74,13 +76,13 @@ export function ExerciseForm({
           >
             {exerciseCategories.map((category) => (
               <option key={category} value={category}>
-                {category}
+                {t(category)}
               </option>
             ))}
           </select>
         </label>
         <label className="field">
-          <span>Equipment</span>
+          <span>{t('Equipment')}</span>
           <select
             value={draft.equipment}
             onChange={(event) =>
@@ -92,14 +94,14 @@ export function ExerciseForm({
           >
             {equipmentTypes.map((equipment) => (
               <option key={equipment} value={equipment}>
-                {equipment}
+                {t(equipment)}
               </option>
             ))}
           </select>
         </label>
       </div>
       <label className="field">
-        <span>Tracking</span>
+        <span>{t('Tracking')}</span>
         <select
           value={draft.trackingType}
           onChange={(event) =>
@@ -109,13 +111,13 @@ export function ExerciseForm({
             })
           }
         >
-          <option value="weight-reps">Weight and repetitions</option>
-          <option value="reps-only">Repetitions only</option>
-          <option value="duration">Duration</option>
+          <option value="weight-reps">{t('Weight and repetitions')}</option>
+          <option value="reps-only">{t('Repetitions only')}</option>
+          <option value="duration">{t('Duration')}</option>
         </select>
       </label>
       <label className="field">
-        <span>Notes (optional)</span>
+        <span>{t('Notes (optional)')}</span>
         <textarea
           rows={3}
           value={draft.notes}
@@ -131,10 +133,10 @@ export function ExerciseForm({
       )}
       <div className="form-actions">
         <Button type="button" variant="secondary" onClick={onCancel}>
-          Cancel
+          {t('Cancel')}
         </Button>
         <Button type="submit" disabled={isSaving}>
-          {isSaving ? 'Saving…' : exercise ? 'Save changes' : 'Add exercise'}
+          {t(isSaving ? 'Saving…' : exercise ? 'Save changes' : 'Add exercise')}
         </Button>
       </div>
     </form>

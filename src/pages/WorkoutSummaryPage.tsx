@@ -15,8 +15,10 @@ import {
 import { findRecordLabels } from '../services/personalRecords';
 import { comparePerformance } from '../services/progressionAnalysis';
 import { calculateExercisePerformance } from '../services/workoutCalculations';
+import { useI18n } from '../i18n/useI18n';
 
 export function WorkoutSummaryPage() {
+  const { language, t } = useI18n();
   const { workoutId = '' } = useParams();
   const navigate = useNavigate();
   const data = useLiveQuery(async () => {
@@ -39,13 +41,17 @@ export function WorkoutSummaryPage() {
             previous.length ? calculateExercisePerformance(previous) : undefined
           );
           const comparisonLabel = comparison.isFirstSession
-            ? 'First recorded session'
+            ? t('First recorded session')
             : comparison.volumePercentChange === null ||
                 comparison.volumePercentChange === 0
-              ? 'No volume change from previous session'
+              ? t('No volume change from previous session')
               : comparison.volumePercentChange > 0
-                ? `+${comparison.volumePercentChange}% volume from previous session`
-                : `${Math.abs(comparison.volumePercentChange)}% below previous session`;
+                ? t('+{{percent}}% volume from previous session', {
+                    percent: comparison.volumePercentChange
+                  })
+                : t('{{percent}}% below previous session', {
+                    percent: Math.abs(comparison.volumePercentChange)
+                  });
           return [
             item.exerciseId,
             {
@@ -65,14 +71,14 @@ export function WorkoutSummaryPage() {
         recordEntries.map(([id, value]) => [id, value.comparison])
       )
     };
-  }, [workoutId]);
+  }, [language, workoutId]);
   if (data === undefined)
-    return <LoadingState label="Loading workout summary" />;
+    return <LoadingState label={t('Loading workout summary')} />;
   if (data === null)
     return (
       <EmptyState
-        title="Workout not found"
-        description="This summary is not available on this device."
+        title={t('Workout not found')}
+        description={t('This summary is not available on this device.')}
       />
     );
   return (
@@ -85,12 +91,12 @@ export function WorkoutSummaryPage() {
         comparisons={data.comparisons}
       />
       <div className="summary-actions">
-        <Button onClick={() => navigate('/')}>Done</Button>
+        <Button onClick={() => navigate('/')}>{t('Done')}</Button>
         <Button
           variant="secondary"
           onClick={() => navigate(`/history/${workoutId}`)}
         >
-          View history
+          {t('View history')}
         </Button>
         <Button
           variant="secondary"
@@ -101,13 +107,13 @@ export function WorkoutSummaryPage() {
             } catch (error) {
               window.alert(
                 error instanceof Error
-                  ? error.message
-                  : 'Unable to repeat workout.'
+                  ? t(error.message)
+                  : t('Unable to repeat workout.')
               );
             }
           }}
         >
-          Repeat workout
+          {t('Repeat workout')}
         </Button>
         {!data.bundle.workout.templateId && (
           <Button
@@ -123,10 +129,10 @@ export function WorkoutSummaryPage() {
                   ).length
                 }))
               });
-              window.alert('Template saved.');
+              window.alert(t('Template saved.'));
             }}
           >
-            Save as template
+            {t('Save as template')}
           </Button>
         )}
       </div>

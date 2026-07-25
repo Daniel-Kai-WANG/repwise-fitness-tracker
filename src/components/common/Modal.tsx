@@ -1,5 +1,6 @@
 import { X } from 'lucide-react';
 import { useEffect, useRef, type ReactNode } from 'react';
+import { useI18n } from '../../i18n/useI18n';
 
 interface ModalProps {
   title: string;
@@ -8,6 +9,7 @@ interface ModalProps {
 }
 
 export function Modal({ title, children, onClose }: ModalProps) {
+  const { t } = useI18n();
   const panelRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -41,7 +43,7 @@ export function Modal({ title, children, onClose }: ModalProps) {
             className="icon-button"
             type="button"
             onClick={onClose}
-            aria-label="Close dialog"
+            aria-label={t('Close dialog')}
           >
             <X size={22} />
           </button>

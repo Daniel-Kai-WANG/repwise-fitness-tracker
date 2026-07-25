@@ -7,6 +7,8 @@ import type { WorkoutBundle } from '../../types/workout';
 import { formatDuration, formatShortDate } from '../../utils/date';
 import { formatVolume, kilogramsToDisplay } from '../../utils/number';
 import { Card } from '../common/Card';
+import { useI18n } from '../../i18n/useI18n';
+import { translateExerciseName } from '../../i18n/translations';
 
 interface WorkoutSummaryProps {
   bundle: WorkoutBundle;
@@ -23,6 +25,7 @@ export function WorkoutSummary({
   records = new Map(),
   comparisons = new Map()
 }: WorkoutSummaryProps) {
+  const { language, t } = useI18n();
   const exerciseMap = new Map(
     exercises.map((exercise) => [exercise.id, exercise])
   );
@@ -35,25 +38,27 @@ export function WorkoutSummary({
             bundle.workout.completedAt ?? bundle.workout.startedAt
           )}
         </p>
-        <h1>{bundle.workout.name}</h1>
-        <p>{formatDuration(bundle.workout.durationSeconds)} training time</p>
+        <h1>{t(bundle.workout.name)}</h1>
+        <p>
+          {formatDuration(bundle.workout.durationSeconds)} {t('training time')}
+        </p>
       </div>
       <div className="stats-grid">
         <div>
           <strong>{formatVolume(summary.volume, unit)}</strong>
-          <span>Volume</span>
+          <span>{t('Volume')}</span>
         </div>
         <div>
           <strong>{summary.completedSets}</strong>
-          <span>Sets</span>
+          <span>{t('Sets')}</span>
         </div>
         <div>
           <strong>{summary.totalRepetitions}</strong>
-          <span>Reps</span>
+          <span>{t('Reps')}</span>
         </div>
         <div>
           <strong>{summary.exerciseCount}</strong>
-          <span>Exercises</span>
+          <span>{t('Exercises')}</span>
         </div>
       </div>
       {bundle.exercises.map((workoutExercise) => {
@@ -68,7 +73,12 @@ export function WorkoutSummary({
         return (
           <Card className="summary-exercise" key={workoutExercise.id}>
             <div className="summary-exercise__header">
-              <h2>{exercise?.name ?? 'Missing exercise'}</h2>
+              <h2>
+                {translateExerciseName(
+                  language,
+                  exercise?.name ?? t('Missing exercise')
+                )}
+              </h2>
               <strong>{formatVolume(performance.volume, unit)}</strong>
             </div>
             <div className="set-breakdown">
@@ -78,20 +88,20 @@ export function WorkoutSummary({
                   {exercise?.trackingType === 'duration'
                     ? `${set.durationSeconds ?? 0}s`
                     : exercise?.trackingType === 'reps-only'
-                      ? `${set.reps ?? 0} reps`
+                      ? t('{{count}} reps', { count: set.reps ?? 0 })
                       : `${kilogramsToDisplay(set.weight ?? 0, unit)} ${unit} × ${set.reps ?? 0}`}
                 </span>
               ))}
             </div>
             <div className="metric-line">
               <span>
-                Best weight{' '}
+                {t('Best weight')}{' '}
                 <strong>
                   {kilogramsToDisplay(performance.bestWeight, unit)} {unit}
                 </strong>
               </span>
               <span>
-                Est. 1RM{' '}
+                {t('Est. 1RM')}{' '}
                 <strong>
                   {kilogramsToDisplay(performance.bestEstimatedOneRepMax, unit)}{' '}
                   {unit}
@@ -101,7 +111,8 @@ export function WorkoutSummary({
             {comparison && <p className="comparison-line">{comparison}</p>}
             {earned.length > 0 && (
               <div className="record-list">
-                <Award size={17} /> {earned.join(' · ')}
+                <Award size={17} />{' '}
+                {earned.map((record) => t(record)).join(' · ')}
               </div>
             )}
           </Card>

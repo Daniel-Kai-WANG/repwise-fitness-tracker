@@ -1,4 +1,5 @@
 import { Search, X } from 'lucide-react';
+import { useI18n } from '../../i18n/useI18n';
 
 interface SearchInputProps {
   value: string;
@@ -13,6 +14,7 @@ export function SearchInput({
   placeholder,
   label
 }: SearchInputProps) {
+  const { t } = useI18n();
   return (
     <label className="search-input">
       <span className="sr-only">{label}</span>
@@ -26,7 +28,7 @@ export function SearchInput({
         <button
           type="button"
           onClick={() => onChange('')}
-          aria-label="Clear search"
+          aria-label={t('Clear search')}
         >
           <X size={18} />
         </button>

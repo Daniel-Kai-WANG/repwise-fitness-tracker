@@ -5,6 +5,7 @@ import type { TrackingType } from '../../types/exercise';
 import type { WeightUnit } from '../../types/settings';
 import { formatShortDate } from '../../utils/date';
 import { formatVolume, kilogramsToDisplay } from '../../utils/number';
+import { useI18n } from '../../i18n/useI18n';
 
 export function ExerciseHistoryList({
   points,
@@ -15,6 +16,7 @@ export function ExerciseHistoryList({
   trackingType: TrackingType;
   unit: WeightUnit;
 }) {
+  const { t } = useI18n();
   return (
     <div className="session-list">
       {[...points].reverse().map((point, reverseIndex) => {
@@ -25,13 +27,17 @@ export function ExerciseHistoryList({
           previous ? calculateExercisePerformance(previous.sets) : undefined
         );
         const change = comparison.isFirstSession
-          ? 'First recorded session'
+          ? t('First recorded session')
           : comparison.volumePercentChange === null ||
               comparison.volumePercentChange === 0
-            ? 'No volume change'
+            ? t('No volume change')
             : comparison.volumePercentChange > 0
-              ? `+${comparison.volumePercentChange}% volume`
-              : `${Math.abs(comparison.volumePercentChange)}% below previous session`;
+              ? t('+{{percent}}% volume', {
+                  percent: comparison.volumePercentChange
+                })
+              : t('{{percent}}% below previous session', {
+                  percent: Math.abs(comparison.volumePercentChange)
+                });
         return (
           <article className="session-item" key={point.workoutId}>
             <div>
@@ -44,13 +50,13 @@ export function ExerciseHistoryList({
                   {trackingType === 'duration'
                     ? `${set.durationSeconds ?? 0}s`
                     : trackingType === 'reps-only'
-                      ? `${set.reps ?? 0} reps`
+                      ? t('{{count}} reps', { count: set.reps ?? 0 })
                       : `${kilogramsToDisplay(set.weight ?? 0, unit)} × ${set.reps ?? 0}`}
                 </span>
               ))}
             </div>
             <p>
-              {formatVolume(point.volume, unit)} volume · best{' '}
+              {formatVolume(point.volume, unit)} {t('volume')} · {t('best')}{' '}
               {kilogramsToDisplay(point.bestWeight, unit)} {unit}
             </p>
           </article>

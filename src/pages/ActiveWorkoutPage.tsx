@@ -25,8 +25,10 @@ import { useRestTimer } from '../hooks/useRestTimer';
 import { findRecordLabels } from '../services/personalRecords';
 import { formatDuration } from '../utils/date';
 import { createRestTimerEnd } from '../services/restTimer';
+import { useI18n } from '../i18n/useI18n';
 
 export function ActiveWorkoutPage() {
+  const { t } = useI18n();
   const { workoutId = '' } = useParams();
   const navigate = useNavigate();
   const [showExercisePicker, setShowExercisePicker] = useState(false);
@@ -66,25 +68,29 @@ export function ActiveWorkoutPage() {
   useEffect(() => {
     if (!data?.workout?.restTimerEndsAt || restRemaining > 0) return;
     setWorkoutRestTimer(workoutId, undefined).catch(() => {
-      setMessage('The rest timer could not be cleared. Your workout is safe.');
+      setMessage(
+        t('The rest timer could not be cleared. Your workout is safe.')
+      );
     });
-  }, [data?.workout?.restTimerEndsAt, restRemaining, workoutId]);
+  }, [data?.workout?.restTimerEndsAt, restRemaining, t, workoutId]);
 
-  if (!data) return <LoadingState label="Restoring active workout" />;
+  if (!data) return <LoadingState label={t('Restoring active workout')} />;
   if (!data.workout)
     return (
       <EmptyState
-        title="Workout not found"
-        description="The requested workout is not available on this device."
-        action={<Link to="/">Return home</Link>}
+        title={t('Workout not found')}
+        description={t(
+          'The requested workout is not available on this device.'
+        )}
+        action={<Link to="/">{t('Return home')}</Link>}
       />
     );
   if (data.workout.status !== 'active')
     return (
       <EmptyState
-        title="Workout is already closed"
-        description="Completed workouts are available in history."
-        action={<Link to={`/history/${workoutId}`}>View workout</Link>}
+        title={t('Workout is already closed')}
+        description={t('Completed workouts are available in history.')}
+        action={<Link to={`/history/${workoutId}`}>{t('View workout')}</Link>}
       />
     );
   const {
@@ -104,7 +110,7 @@ export function ActiveWorkoutPage() {
     if (!settings?.defaultRestSeconds) return;
     const restTimerEndsAt = createRestTimerEnd(settings.defaultRestSeconds);
     setWorkoutRestTimer(workoutId, restTimerEndsAt).catch(() => {
-      setMessage('The rest timer could not start. Your set is still saved.');
+      setMessage(t('The rest timer could not start. Your set is still saved.'));
     });
   };
 
@@ -117,7 +123,7 @@ export function ActiveWorkoutPage() {
         onCancel={async () => {
           if (
             window.confirm(
-              'Cancel this workout? It will not appear in completed history.'
+              t('Cancel this workout? It will not appear in completed history.')
             )
           ) {
             await cancelWorkout(workoutId);
@@ -127,17 +133,17 @@ export function ActiveWorkoutPage() {
       />
       {restRemaining > 0 && (
         <div className="rest-banner" role="timer">
-          <span>Rest</span>
+          <span>{t('Rest')}</span>
           <strong>{formatDuration(restRemaining)}</strong>
           <button
             type="button"
             onClick={() =>
               setWorkoutRestTimer(workoutId, undefined).catch(() =>
-                setMessage('The rest timer could not be cleared.')
+                setMessage(t('The rest timer could not be cleared.'))
               )
             }
           >
-            Skip
+            {t('Skip')}
           </button>
         </div>
       )}
@@ -147,8 +153,10 @@ export function ActiveWorkoutPage() {
           return (
             <EmptyState
               key={workoutExercise.id}
-              title="Missing exercise"
-              description="This workout references an exercise that is no longer available."
+              title={t('Missing exercise')}
+              description={t(
+                'This workout references an exercise that is no longer available.'
+              )}
             />
           );
         const exerciseSets = sets
@@ -177,8 +185,10 @@ export function ActiveWorkoutPage() {
               );
               setMessage(
                 records.length
-                  ? `Personal record: ${records.join(', ')}`
-                  : 'Set saved'
+                  ? t('Personal record: {{records}}', {
+                      records: records.map((record) => t(record)).join(', ')
+                    })
+                  : t('Set saved')
               );
               window.setTimeout(() => setMessage(undefined), 2800);
               beginRestTimer();
@@ -192,14 +202,14 @@ export function ActiveWorkoutPage() {
         fullWidth
         onClick={() => setShowExercisePicker(true)}
       >
-        <Plus size={18} /> Add exercise
+        <Plus size={18} /> {t('Add exercise')}
       </Button>
       <div className="toast-region" aria-live="polite">
         {message && <div className="toast">{message}</div>}
       </div>
       {(showExercisePicker || replaceId) && (
         <AddExerciseSheet
-          title={replaceId ? 'Replace exercise' : 'Add exercise'}
+          title={t(replaceId ? 'Replace exercise' : 'Add exercise')}
           exercises={exercises}
           excludedIds={workoutExercises.map((item) => item.exerciseId)}
           onClose={() => {
@@ -221,7 +231,10 @@ export function ActiveWorkoutPage() {
         />
       )}
       {showFinish && (
-        <Modal title="Finish workout?" onClose={() => setShowFinish(false)}>
+        <Modal
+          title={t('Finish workout?')}
+          onClose={() => setShowFinish(false)}
+        >
           <div className="finish-summary">
             <div>
               <strong>
@@ -234,30 +247,31 @@ export function ActiveWorkoutPage() {
                   ).length
                 }
               </strong>
-              <span>Exercises</span>
+              <span>{t('Exercises')}</span>
             </div>
             <div>
               <strong>{completedCount}</strong>
-              <span>Completed sets</span>
+              <span>{t('Completed sets')}</span>
             </div>
             <div>
               <strong>{incompleteCount}</strong>
-              <span>Incomplete sets</span>
+              <span>{t('Incomplete sets')}</span>
             </div>
             <div>
               <strong>{formatDuration(elapsedSeconds)}</strong>
-              <span>Duration</span>
+              <span>{t('Duration')}</span>
             </div>
           </div>
           {incompleteCount > 0 && (
             <p className="notice">
-              Incomplete sets will be discarded. Completed data is already
-              saved.
+              {t(
+                'Incomplete sets will be discarded. Completed data is already saved.'
+              )}
             </p>
           )}
           <div className="form-actions">
             <Button variant="secondary" onClick={() => setShowFinish(false)}>
-              Continue workout
+              {t('Continue workout')}
             </Button>
             <Button
               onClick={async () => {
@@ -265,7 +279,7 @@ export function ActiveWorkoutPage() {
                 navigate(`/workout/summary/${workoutId}`);
               }}
             >
-              Finish workout
+              {t('Finish workout')}
             </Button>
           </div>
         </Modal>

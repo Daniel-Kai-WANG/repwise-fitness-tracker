@@ -17,8 +17,10 @@ import {
 } from '../utils/date';
 import { formatVolume } from '../utils/number';
 import { getSettings } from '../db/repositories/settingsRepository';
+import { useI18n } from '../i18n/useI18n';
 
 export function WorkoutHistoryPage() {
+  const { t } = useI18n();
   const [search, setSearch] = useState('');
   const data = useLiveQuery(async () => ({
     workouts: await db.workouts
@@ -37,7 +39,7 @@ export function WorkoutHistoryPage() {
       ) ?? [],
     [data?.workouts, search]
   );
-  if (!data) return <LoadingState label="Loading workout history" />;
+  if (!data) return <LoadingState label={t('Loading workout history')} />;
   const dateGroups = groupByLocalDate(
     visible,
     (workout) => workout.completedAt ?? workout.startedAt
@@ -45,13 +47,13 @@ export function WorkoutHistoryPage() {
   return (
     <section className="page-stack">
       <PageHeader
-        eyebrow="Logbook"
-        title="History"
-        description="Every completed session stored on this device."
+        eyebrow={t('Logbook')}
+        title={t('History')}
+        description={t('Every completed session stored on this device.')}
       />
       <SearchInput
-        label="Search workout history"
-        placeholder="Search workout name"
+        label={t('Search workout history')}
+        placeholder={t('Search workout name')}
         value={search}
         onChange={setSearch}
       />
@@ -78,7 +80,7 @@ export function WorkoutHistoryPage() {
                               workout.completedAt ?? workout.startedAt
                             )}
                           </p>
-                          <h2>{workout.name}</h2>
+                          <h2>{t(workout.name)}</h2>
                           <div className="history-card__metrics">
                             <span>
                               <Clock size={15} />{' '}
@@ -86,9 +88,13 @@ export function WorkoutHistoryPage() {
                             </span>
                             <span>
                               <Dumbbell size={15} /> {summary.exerciseCount}{' '}
-                              exercises
+                              {t('exercises')}
                             </span>
-                            <span>{summary.completedSets} sets</span>
+                            <span>
+                              {t('{{count}} sets', {
+                                count: summary.completedSets
+                              })}
+                            </span>
                             <span>
                               {formatVolume(
                                 summary.volume,
@@ -103,12 +109,16 @@ export function WorkoutHistoryPage() {
                         type="button"
                         onClick={() =>
                           window.confirm(
-                            `Delete ${workout.name}? This cannot be undone.`
+                            t('Delete {{name}}? This cannot be undone.', {
+                              name: workout.name
+                            })
                           ) && deleteWorkout(workout.id)
                         }
-                        aria-label={`Delete ${workout.name}`}
+                        aria-label={t('Delete {{name}}', {
+                          name: workout.name
+                        })}
                       >
-                        <Trash2 size={17} /> Delete
+                        <Trash2 size={17} /> {t('Delete')}
                       </button>
                     </Card>
                   );
@@ -119,16 +129,18 @@ export function WorkoutHistoryPage() {
         </div>
       ) : (
         <EmptyState
-          title={search ? 'No matching workouts' : 'No completed workouts'}
+          title={t(search ? 'No matching workouts' : 'No completed workouts')}
           description={
             search
-              ? 'Try a different workout name.'
-              : 'Finish your first workout to begin a private training history.'
+              ? t('Try a different workout name.')
+              : t(
+                  'Finish your first workout to begin a private training history.'
+                )
           }
           action={
             !search && (
               <Link className="button button--primary" to="/workout/start">
-                Start workout
+                {t('Start workout')}
               </Link>
             )
           }

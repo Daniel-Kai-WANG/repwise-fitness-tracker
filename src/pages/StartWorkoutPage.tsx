@@ -10,8 +10,11 @@ import { PageHeader } from '../components/layout/PageHeader';
 import { db } from '../db/database';
 import { createWorkout } from '../db/repositories/workoutRepository';
 import { validateName } from '../services/validation';
+import { useI18n } from '../i18n/useI18n';
+import { translateExerciseName } from '../i18n/translations';
 
 export function StartWorkoutPage() {
+  const { language, t } = useI18n();
   const navigate = useNavigate();
   const data = useLiveQuery(async () => ({
     active: await db.workouts
@@ -21,9 +24,9 @@ export function StartWorkoutPage() {
     templates: await db.templates.orderBy('name').toArray(),
     exercises: await db.exercises.toArray()
   }));
-  const [name, setName] = useState('Workout');
+  const [name, setName] = useState(t('Workout'));
   const [error, setError] = useState<string>();
-  if (!data) return <LoadingState label="Preparing workouts" />;
+  if (!data) return <LoadingState label={t('Preparing workouts')} />;
   const exerciseMap = new Map(
     data.exercises.map((exercise) => [exercise.id, exercise.name])
   );
@@ -31,15 +34,15 @@ export function StartWorkoutPage() {
   const startEmpty = async (event: FormEvent) => {
     event.preventDefault();
     const validationError = validateName(name);
-    if (validationError) return setError(validationError);
+    if (validationError) return setError(t(validationError));
     try {
       const workout = await createWorkout(name);
       navigate(`/workout/active/${workout.id}`);
     } catch (caughtError) {
       setError(
         caughtError instanceof Error
-          ? caughtError.message
-          : 'Unable to start workout.'
+          ? t(caughtError.message)
+          : t('Unable to start workout.')
       );
     }
   };
@@ -48,16 +51,18 @@ export function StartWorkoutPage() {
     return (
       <section className="page-stack">
         <PageHeader
-          eyebrow="Recovery"
+          eyebrow={t('Recovery')}
           title={
             data.active.length === 1
-              ? 'Workout in progress'
-              : 'Multiple active workouts found'
+              ? t('Workout in progress')
+              : t('Multiple active workouts found')
           }
           description={
             data.active.length === 1
-              ? 'Your workout is stored safely on this device.'
-              : 'This is unexpected. Resume one workout, then finish or cancel it before starting another.'
+              ? t('Your workout is stored safely on this device.')
+              : t(
+                  'This is unexpected. Resume one workout, then finish or cancel it before starting another.'
+                )
           }
         />
         {data.active.map((workout) => (
@@ -65,10 +70,15 @@ export function StartWorkoutPage() {
             <div>
               <Dumbbell size={25} />
               <h2>{workout.name}</h2>
-              <p>Started {new Date(workout.startedAt).toLocaleString()}</p>
+              <p>
+                {t('Started')}{' '}
+                {new Date(workout.startedAt).toLocaleString(
+                  language === 'zh' ? 'zh-CN' : 'en'
+                )}
+              </p>
             </div>
             <Button onClick={() => navigate(`/workout/active/${workout.id}`)}>
-              Resume workout
+              {t('Resume workout')}
             </Button>
           </Card>
         ))}
@@ -79,17 +89,17 @@ export function StartWorkoutPage() {
   return (
     <section className="page-stack">
       <PageHeader
-        eyebrow="Train"
-        title="Start workout"
-        description="Choose a plan or begin with an empty session."
+        eyebrow={t('Train')}
+        title={t('Start workout')}
+        description={t('Choose a plan or begin with an empty session.')}
       />
       <div className="section-heading">
         <div>
-          <h2>From a template</h2>
-          <p>Targets remain editable during training.</p>
+          <h2>{t('From a template')}</h2>
+          <p>{t('Targets remain editable during training.')}</p>
         </div>
         <Link className="text-link" to="/templates">
-          <LayoutTemplate size={17} /> Manage
+          <LayoutTemplate size={17} /> {t('Manage')}
         </Link>
       </div>
       {data.templates.length ? (
@@ -101,7 +111,12 @@ export function StartWorkoutPage() {
                 <p>
                   {template.exercises
                     .slice(0, 3)
-                    .map((item) => exerciseMap.get(item.exerciseId))
+                    .map((item) => {
+                      const exerciseName = exerciseMap.get(item.exerciseId);
+                      return exerciseName
+                        ? translateExerciseName(language, exerciseName)
+                        : undefined;
+                    })
                     .filter(Boolean)
                     .join(' · ')}
                 </p>
@@ -116,18 +131,20 @@ export function StartWorkoutPage() {
                   navigate(`/workout/active/${workout.id}`);
                 }}
               >
-                Start
+                {t('Start')}
               </Button>
             </Card>
           ))}
         </div>
       ) : (
         <EmptyState
-          title="No templates yet"
-          description="You can start empty now or create a reusable training plan."
+          title={t('No templates yet')}
+          description={t(
+            'You can start empty now or create a reusable training plan.'
+          )}
           action={
             <Link className="button button--secondary" to="/templates/new">
-              Create template
+              {t('Create template')}
             </Link>
           }
         />
@@ -136,13 +153,13 @@ export function StartWorkoutPage() {
         <div>
           <Plus size={22} />
           <div>
-            <h2>Start empty workout</h2>
-            <p>Add exercises after the timer begins.</p>
+            <h2>{t('Start empty workout')}</h2>
+            <p>{t('Add exercises after the timer begins.')}</p>
           </div>
         </div>
         <form onSubmit={startEmpty}>
           <label className="field">
-            <span>Workout name</span>
+            <span>{t('Workout name')}</span>
             <input
               value={name}
               maxLength={80}
@@ -155,7 +172,7 @@ export function StartWorkoutPage() {
             </p>
           )}
           <Button type="submit" fullWidth>
-            Start empty workout
+            {t('Start empty workout')}
           </Button>
         </form>
       </Card>

@@ -58,6 +58,11 @@ const SettingsPage = lazy(() =>
     default: module.SettingsPage
   }))
 );
+const GuidePage = lazy(() =>
+  import('../pages/GuidePage').then((module) => ({
+    default: module.GuidePage
+  }))
+);
 
 export function AppRoutes() {
   return (
@@ -88,6 +93,7 @@ export function AppRoutes() {
             element={<TemplateEditorPage />}
           />
           <Route path="settings" element={<SettingsPage />} />
+          <Route path="guide" element={<GuidePage />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

@@ -9,6 +9,8 @@ import type {
 import { Button } from '../common/Button';
 import { Modal } from '../common/Modal';
 import { SearchInput } from '../common/SearchInput';
+import { useI18n } from '../../i18n/useI18n';
+import { translateExerciseName } from '../../i18n/translations';
 
 interface TemplateFormProps {
   template?: WorkoutTemplate;
@@ -23,6 +25,7 @@ export function TemplateForm({
   onSave,
   onCancel
 }: TemplateFormProps) {
+  const { language, t } = useI18n();
   const [draft, setDraft] = useState<WorkoutTemplateDraft>({
     name: template?.name ?? '',
     description: template?.description ?? '',
@@ -39,7 +42,10 @@ export function TemplateForm({
   const availableExercises = exercises.filter(
     (exercise) =>
       !exercise.isArchived &&
-      exercise.name.toLowerCase().includes(search.toLowerCase()) &&
+      (exercise.name.toLowerCase().includes(search.toLowerCase()) ||
+        translateExerciseName(language, exercise.name)
+          .toLowerCase()
+          .includes(search.toLowerCase())) &&
       !draft.exercises.some((item) => item.exerciseId === exercise.id)
   );
 
@@ -69,8 +75,9 @@ export function TemplateForm({
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
     const validationError = validateName(draft.name);
-    if (validationError) return setError(validationError);
-    if (!draft.exercises.length) return setError('Add at least one exercise.');
+    if (validationError) return setError(t(validationError));
+    if (!draft.exercises.length)
+      return setError(t('Add at least one exercise.'));
     setError(undefined);
     setIsSaving(true);
     try {
@@ -78,8 +85,8 @@ export function TemplateForm({
     } catch (caughtError) {
       setError(
         caughtError instanceof Error
-          ? caughtError.message
-          : 'Unable to save template.'
+          ? t(caughtError.message)
+          : t('Unable to save template.')
       );
       setIsSaving(false);
     }
@@ -88,7 +95,7 @@ export function TemplateForm({
   return (
     <form className="form-stack" onSubmit={handleSubmit}>
       <label className="field">
-        <span>Template name</span>
+        <span>{t('Template name')}</span>
         <input
           autoFocus
           maxLength={80}
@@ -97,7 +104,7 @@ export function TemplateForm({
         />
       </label>
       <label className="field">
-        <span>Description (optional)</span>
+        <span>{t('Description (optional)')}</span>
         <textarea
           rows={2}
           value={draft.description}
@@ -108,15 +115,15 @@ export function TemplateForm({
       </label>
       <div className="section-heading">
         <div>
-          <h2>Exercises</h2>
-          <p>Targets are copied into each new workout.</p>
+          <h2>{t('Exercises')}</h2>
+          <p>{t('Targets are copied into each new workout.')}</p>
         </div>
         <Button
           type="button"
           variant="secondary"
           onClick={() => setShowPicker(true)}
         >
-          <Plus size={17} /> Add
+          <Plus size={17} /> {t('Add')}
         </Button>
       </div>
       <div className="template-exercise-list">
@@ -124,14 +131,18 @@ export function TemplateForm({
           <article className="template-exercise" key={item.exerciseId}>
             <div className="template-exercise__header">
               <h3>
-                {exerciseMap.get(item.exerciseId)?.name ?? 'Missing exercise'}
+                {translateExerciseName(
+                  language,
+                  exerciseMap.get(item.exerciseId)?.name ??
+                    t('Missing exercise')
+                )}
               </h3>
               <div className="compact-actions">
                 <button
                   type="button"
                   disabled={index === 0}
                   onClick={() => moveItem(index, -1)}
-                  aria-label="Move exercise up"
+                  aria-label={t('Move exercise up')}
                 >
                   <ArrowUp size={17} />
                 </button>
@@ -139,7 +150,7 @@ export function TemplateForm({
                   type="button"
                   disabled={index === draft.exercises.length - 1}
                   onClick={() => moveItem(index, 1)}
-                  aria-label="Move exercise down"
+                  aria-label={t('Move exercise down')}
                 >
                   <ArrowDown size={17} />
                 </button>
@@ -153,7 +164,7 @@ export function TemplateForm({
                       )
                     })
                   }
-                  aria-label="Remove exercise"
+                  aria-label={t('Remove exercise')}
                 >
                   <Trash2 size={17} />
                 </button>
@@ -161,7 +172,7 @@ export function TemplateForm({
             </div>
             <div className="target-grid">
               <label>
-                <span>Sets</span>
+                <span>{t('Sets')}</span>
                 <input
                   inputMode="numeric"
                   type="number"
@@ -176,7 +187,7 @@ export function TemplateForm({
                 />
               </label>
               <label>
-                <span>Reps min</span>
+                <span>{t('Reps min')}</span>
                 <input
                   inputMode="numeric"
                   type="number"
@@ -191,7 +202,7 @@ export function TemplateForm({
                 />
               </label>
               <label>
-                <span>Reps max</span>
+                <span>{t('Reps max')}</span>
                 <input
                   inputMode="numeric"
                   type="number"
@@ -206,7 +217,7 @@ export function TemplateForm({
                 />
               </label>
               <label>
-                <span>Rest sec</span>
+                <span>{t('Rest sec')}</span>
                 <input
                   inputMode="numeric"
                   type="number"
@@ -231,18 +242,18 @@ export function TemplateForm({
       )}
       <div className="form-actions">
         <Button type="button" variant="secondary" onClick={onCancel}>
-          Cancel
+          {t('Cancel')}
         </Button>
         <Button type="submit" disabled={isSaving}>
-          {isSaving ? 'Saving…' : 'Save template'}
+          {t(isSaving ? 'Saving…' : 'Save template')}
         </Button>
       </div>
       {showPicker && (
-        <Modal title="Add exercises" onClose={() => setShowPicker(false)}>
+        <Modal title={t('Add exercises')} onClose={() => setShowPicker(false)}>
           <div className="page-stack">
             <SearchInput
-              label="Search available exercises"
-              placeholder="Search exercises"
+              label={t('Search available exercises')}
+              placeholder={t('Search exercises')}
               value={search}
               onChange={setSearch}
             />
@@ -269,7 +280,7 @@ export function TemplateForm({
                     setSearch('');
                   }}
                 >
-                  {exercise.name}
+                  {translateExerciseName(language, exercise.name)}
                   <Plus size={18} />
                 </button>
               ))}

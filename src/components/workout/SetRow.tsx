@@ -10,6 +10,7 @@ import type { TrackingType } from '../../types/exercise';
 import type { WeightUnit } from '../../types/settings';
 import type { WorkoutSet } from '../../types/workout';
 import { displayToKilograms, kilogramsToDisplay } from '../../utils/number';
+import { useI18n } from '../../i18n/useI18n';
 
 interface SetRowProps {
   set: WorkoutSet;
@@ -32,6 +33,7 @@ export function SetRow({
   onDelete,
   onCompleted
 }: SetRowProps) {
+  const { t } = useI18n();
   const [weight, setWeight] = useState(
     set.weight === undefined ? '' : String(kilogramsToDisplay(set.weight, unit))
   );
@@ -53,10 +55,10 @@ export function SetRow({
             : displayToKilograms(displayWeight, unit),
         reps: optionalNumber(reps),
         durationSeconds: optionalNumber(duration)
-      }).catch(() => setError('Could not save this set.'));
+      }).catch(() => setError(t('Could not save this set.')));
     }, 350);
     return () => window.clearTimeout(timer);
-  }, [duration, reps, set.id, unit, weight]);
+  }, [duration, reps, set.id, t, unit, weight]);
 
   const handleComplete = async () => {
     const displayWeight = optionalNumber(weight);
@@ -72,7 +74,7 @@ export function SetRow({
         : trackingType === 'reps-only'
           ? validateRepetitions(repetitionCount)
           : (validateWeight(weightKg) ?? validateRepetitions(repetitionCount));
-    if (validationError) return setError(validationError);
+    if (validationError) return setError(t(validationError));
     const completed = {
       ...set,
       weight: weightKg,
@@ -94,7 +96,7 @@ export function SetRow({
     ? trackingType === 'duration'
       ? `${previous.durationSeconds ?? 0}s`
       : trackingType === 'reps-only'
-        ? `${previous.reps ?? 0} reps`
+        ? t('{{count}} reps', { count: previous.reps ?? 0 })
         : `${kilogramsToDisplay(previous.weight ?? 0, unit)} × ${previous.reps ?? 0}`
     : '—';
 
@@ -102,7 +104,7 @@ export function SetRow({
     <div className={set.isCompleted ? 'set-row is-complete' : 'set-row'}>
       <span className="set-row__number">
         {set.isWarmup ? (
-          <Flame size={15} aria-label="Warm-up" />
+          <Flame size={15} aria-label={t('Warm-up')} />
         ) : (
           set.setNumber
         )}
@@ -110,7 +112,7 @@ export function SetRow({
       <span className="set-row__previous">{previousLabel}</span>
       {trackingType === 'weight-reps' && (
         <input
-          aria-label={`Set ${set.setNumber} weight`}
+          aria-label={t('Set {{number}} weight', { number: set.setNumber })}
           inputMode="decimal"
           type="number"
           min="0"
@@ -121,7 +123,9 @@ export function SetRow({
       )}
       {trackingType !== 'duration' && (
         <input
-          aria-label={`Set ${set.setNumber} repetitions`}
+          aria-label={t('Set {{number}} repetitions', {
+            number: set.setNumber
+          })}
           inputMode="numeric"
           type="number"
           min="0"
@@ -133,7 +137,9 @@ export function SetRow({
       {trackingType === 'duration' && (
         <input
           className="set-row__wide-input"
-          aria-label={`Set ${set.setNumber} duration seconds`}
+          aria-label={t('Set {{number}} duration seconds', {
+            number: set.setNumber
+          })}
           inputMode="numeric"
           type="number"
           min="0"
@@ -148,8 +154,8 @@ export function SetRow({
         onClick={handleComplete}
         aria-label={
           set.isCompleted
-            ? `Mark set ${set.setNumber} incomplete`
-            : `Complete set ${set.setNumber}`
+            ? t('Mark set {{number}} incomplete', { number: set.setNumber })
+            : t('Complete set {{number}}', { number: set.setNumber })
         }
         aria-pressed={set.isCompleted}
       >
@@ -159,7 +165,7 @@ export function SetRow({
         className="set-row__delete"
         type="button"
         onClick={onDelete}
-        aria-label={`Delete set ${set.setNumber}`}
+        aria-label={t('Delete set {{number}}', { number: set.setNumber })}
       >
         <Trash2 size={17} />
       </button>
