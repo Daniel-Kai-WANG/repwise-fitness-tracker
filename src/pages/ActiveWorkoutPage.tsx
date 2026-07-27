@@ -20,12 +20,15 @@ import {
   updateWorkoutExercise
 } from '../db/repositories/workoutRepository';
 import { getSettings } from '../db/repositories/settingsRepository';
+import { createExercise } from '../db/repositories/exerciseRepository';
+import { useRestAlert } from '../hooks/useRestAlert';
 import { useWorkoutTimer } from '../hooks/useWorkoutTimer';
 import { useRestTimer } from '../hooks/useRestTimer';
 import { findRecordLabels } from '../services/personalRecords';
 import { formatDuration } from '../utils/date';
 import { createRestTimerEnd } from '../services/restTimer';
 import { useI18n } from '../i18n/useI18n';
+import type { Exercise } from '../types/exercise';
 
 export function ActiveWorkoutPage() {
   const { t } = useI18n();
@@ -64,6 +67,15 @@ export function ActiveWorkoutPage() {
   }, [workoutId]);
   const elapsedSeconds = useWorkoutTimer(data?.workout?.startedAt);
   const restRemaining = useRestTimer(data?.workout?.restTimerEndsAt);
+  useRestAlert(
+    data?.settings?.autoRestEnabled !== false,
+    data?.workout?.restTimerEndsAt,
+    restRemaining,
+    () => {
+      setMessage(t('Rest finished. Start your next set.'));
+      window.setTimeout(() => setMessage(undefined), 4000);
+    }
+  );
 
   useEffect(() => {
     if (!data?.workout?.restTimerEndsAt || restRemaining > 0) return;
@@ -107,11 +119,25 @@ export function ActiveWorkoutPage() {
   const incompleteCount = sets.length - completedCount;
 
   const beginRestTimer = () => {
-    if (!settings?.defaultRestSeconds) return;
+    if (settings?.autoRestEnabled === false || !settings?.defaultRestSeconds)
+      return;
     const restTimerEndsAt = createRestTimerEnd(settings.defaultRestSeconds);
     setWorkoutRestTimer(workoutId, restTimerEndsAt).catch(() => {
       setMessage(t('The rest timer could not start. Your set is still saved.'));
     });
+  };
+
+  const handleExerciseSelected = async (exercise: Exercise) => {
+    if (replaceId) {
+      await updateWorkoutExercise(replaceId, {
+        exerciseId: exercise.id
+      });
+    } else {
+      const added = await addExerciseToWorkout(workoutId, exercise.id);
+      await addSet(added);
+    }
+    setShowExercisePicker(false);
+    setReplaceId(undefined);
   };
 
   return (
@@ -216,17 +242,10 @@ export function ActiveWorkoutPage() {
             setShowExercisePicker(false);
             setReplaceId(undefined);
           }}
-          onSelect={async (exercise) => {
-            if (replaceId)
-              await updateWorkoutExercise(replaceId, {
-                exerciseId: exercise.id
-              });
-            else {
-              const added = await addExerciseToWorkout(workoutId, exercise.id);
-              await addSet(added);
-            }
-            setShowExercisePicker(false);
-            setReplaceId(undefined);
+          onSelect={handleExerciseSelected}
+          onCreate={async (draft) => {
+            const exercise = await createExercise(draft);
+            await handleExerciseSelected(exercise);
           }}
         />
       )}

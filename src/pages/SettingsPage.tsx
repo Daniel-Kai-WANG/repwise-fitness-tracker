@@ -18,6 +18,7 @@ import { Card } from '../components/common/Card';
 import { LoadingState } from '../components/common/LoadingState';
 import { Modal } from '../components/common/Modal';
 import { PageHeader } from '../components/layout/PageHeader';
+import { TrainingPreferencesCard } from '../components/settings/TrainingPreferencesCard';
 import {
   getSettings,
   updateSettings
@@ -32,11 +33,7 @@ import {
   summariseBackup
 } from '../services/backupService';
 import type { BackupMergePreview } from '../types/backup';
-import type {
-  LanguagePreference,
-  ThemePreference,
-  WeightUnit
-} from '../types/settings';
+import type { LanguagePreference, ThemePreference } from '../types/settings';
 import { downloadJson } from '../utils/file';
 import { useI18n } from '../i18n/useI18n';
 
@@ -84,56 +81,12 @@ export function SettingsPage() {
           'Everything stays in this browser unless you export a backup.'
         )}
       />
-      <Card className="settings-section">
-        <div className="settings-section__title">
-          <Database size={20} />
-          <div>
-            <h2>{t('Training preferences')}</h2>
-            <p>{t('Weights are always stored canonically in kilograms.')}</p>
-          </div>
-        </div>
-        <label className="settings-row">
-          <span>{t('Weight unit')}</span>
-          <select
-            value={settings.weightUnit}
-            onChange={(event) =>
-              updateSettings({ weightUnit: event.target.value as WeightUnit })
-            }
-          >
-            <option value="kg">{t('Kilograms (kg)')}</option>
-            <option value="lb">{t('Pounds (lb)')}</option>
-          </select>
-        </label>
-        <label className="settings-row">
-          <span>{t('Default rest timer')}</span>
-          <div>
-            <input
-              aria-label={t('Default rest seconds')}
-              inputMode="numeric"
-              type="number"
-              min="0"
-              max="3600"
-              value={settings.defaultRestSeconds}
-              onChange={(event) =>
-                updateSettings({
-                  defaultRestSeconds: Math.max(0, Number(event.target.value))
-                })
-              }
-            />
-            <small>{t('seconds')}</small>
-          </div>
-        </label>
-        <label className="settings-row">
-          <span>{t('Show warm-up sets')}</span>
-          <input
-            type="checkbox"
-            checked={settings.showWarmupSets}
-            onChange={(event) =>
-              updateSettings({ showWarmupSets: event.target.checked })
-            }
-          />
-        </label>
-      </Card>
+      <TrainingPreferencesCard
+        settings={settings}
+        onAlertTest={() =>
+          setMessage(t('Rest alert played at a gentle volume.'))
+        }
+      />
       <Card className="settings-section settings-link-card">
         <Link to="/guide">
           <CircleHelp size={22} />

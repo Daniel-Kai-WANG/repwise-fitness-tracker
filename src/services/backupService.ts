@@ -129,6 +129,8 @@ function hasRequiredFields(
           value.language === 'system' ||
           value.language === 'en' ||
           value.language === 'zh') &&
+        (value.autoRestEnabled === undefined ||
+          typeof value.autoRestEnabled === 'boolean') &&
         Number.isInteger(value.defaultRestSeconds) &&
         Number(value.defaultRestSeconds) >= 0 &&
         Number(value.defaultRestSeconds) <= 3600 &&

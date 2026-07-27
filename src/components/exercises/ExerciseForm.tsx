@@ -11,18 +11,20 @@ import { useI18n } from '../../i18n/useI18n';
 
 interface ExerciseFormProps {
   exercise?: Exercise;
+  initialName?: string;
   onSubmit: (draft: ExerciseDraft) => Promise<void>;
   onCancel: () => void;
 }
 
 export function ExerciseForm({
   exercise,
+  initialName = '',
   onSubmit,
   onCancel
 }: ExerciseFormProps) {
   const { t } = useI18n();
   const [draft, setDraft] = useState<ExerciseDraft>({
-    name: exercise?.name ?? '',
+    name: exercise?.name ?? initialName,
     category: exercise?.category ?? 'other',
     equipment: exercise?.equipment ?? 'other',
     trackingType: exercise?.trackingType ?? 'weight-reps',

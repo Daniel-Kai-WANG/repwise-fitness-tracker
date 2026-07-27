@@ -4,6 +4,9 @@ import { translate, translateExerciseName } from './translations';
 describe('translations', () => {
   it('translates interface text and interpolates values', () => {
     expect(translate('zh', 'Start workout')).toBe('开始训练');
+    expect(translate('zh', 'Rest finished. Start your next set.')).toBe(
+      '休息结束，可以开始下一组。'
+    );
     expect(
       translate('zh', '{{count}} sets', {
         count: 3

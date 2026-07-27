@@ -47,7 +47,8 @@ const guideSections: GuideSection[] = [
     steps: [
       'Tap Start and choose a template or start an empty workout.',
       'Add exercises, then enter weight, repetitions, or duration for each set.',
-      'Tap the check button after each completed set and use the rest timer.',
+      'If a movement is missing, create a custom exercise and it will be added to the current workout.',
+      'Tap the check button after each completed set. The automatic rest timer starts and alerts you when it ends.',
       'Tap Finish when the workout is complete, then review the summary.'
     ]
   },

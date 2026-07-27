@@ -7,6 +7,7 @@ export interface AppSettings {
   weightUnit: WeightUnit;
   theme: ThemePreference;
   language?: LanguagePreference;
+  autoRestEnabled?: boolean;
   defaultRestSeconds: number;
   showWarmupSets: boolean;
   hasCompletedOnboarding: boolean;

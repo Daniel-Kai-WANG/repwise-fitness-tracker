@@ -26,6 +26,10 @@ describe('App', () => {
     expect(
       screen.getByRole('navigation', { name: '主导航' })
     ).toBeInTheDocument();
+    expect(
+      screen.getByRole('checkbox', { name: '每组完成后自动休息' })
+    ).toBeChecked();
+    expect(screen.getByRole('button', { name: '测试休息提醒' })).toBeEnabled();
 
     await user.click(screen.getByRole('link', { name: /Repwise 使用指南/ }));
     expect(

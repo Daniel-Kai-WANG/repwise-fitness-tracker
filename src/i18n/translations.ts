@@ -29,11 +29,16 @@ const zh: Record<string, string> = {
   'Training preferences': '训练偏好',
   'Weights are always stored canonically in kilograms.':
     '重量始终以千克作为标准单位保存。',
+  'Choose your units and how Repwise handles rest between sets.':
+    '选择重量单位，并设置 Repwise 如何处理组间休息。',
   'Weight unit': '重量单位',
   'Kilograms (kg)': '千克（kg）',
   'Pounds (lb)': '磅（lb）',
   'Default rest timer': '默认休息计时',
   'Default rest seconds': '默认休息秒数',
+  'Automatic rest after each set': '每组完成后自动休息',
+  'Test rest alert': '测试休息提醒',
+  'Rest alert played at a gentle volume.': '已用柔和音量播放休息提醒。',
   seconds: '秒',
   'Show warm-up sets': '显示热身组',
   Appearance: '外观',
@@ -119,6 +124,9 @@ const zh: Record<string, string> = {
   'Exercise library': '动作库',
   'Manage movements and review progress.': '管理动作并查看进度。',
   'Add exercise': '添加动作',
+  'Create custom exercise': '新建自定义动作',
+  'No matching exercises. Create your own movement instead.':
+    '没有匹配的动作，可以直接新建自己的动作。',
   'Search exercises': '搜索动作',
   'Search exercise library': '搜索动作库',
   Active: '启用',
@@ -192,6 +200,7 @@ const zh: Record<string, string> = {
   'Discard workout': '放弃训练',
   'Rest timer': '休息计时',
   'Skip rest': '跳过休息',
+  'Rest finished. Start your next set.': '休息结束，可以开始下一组。',
   'Workout complete': '训练完成',
   'Review your completed session.': '查看已完成的训练。',
   'Back to home': '返回首页',
@@ -475,8 +484,10 @@ const zh: Record<string, string> = {
     '点击“开始”，选择模板或开始空白训练。',
   'Add exercises, then enter weight, repetitions, or duration for each set.':
     '添加动作，然后为每组输入重量、次数或时长。',
-  'Tap the check button after each completed set and use the rest timer.':
-    '每完成一组就点击勾选按钮，并使用休息计时器。',
+  'If a movement is missing, create a custom exercise and it will be added to the current workout.':
+    '如果找不到需要的动作，可以新建自定义动作，它会自动加入当前训练。',
+  'Tap the check button after each completed set. The automatic rest timer starts and alerts you when it ends.':
+    '每完成一组就点击勾选按钮。自动组间休息会开始倒计时，并在结束时提醒你。',
   'Tap Finish when the workout is complete, then review the summary.':
     '训练完成后点击“结束”，然后查看训练总结。',
   'Reuse your training plan': '重复使用训练计划',

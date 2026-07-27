@@ -59,6 +59,7 @@ describe('backup service', () => {
   it('exports and transactionally restores every table', async () => {
     await database.settings.add(createDefaultSettings());
     const backup = await createBackup('0.1.0', database);
+    delete backup.data.settings[0].autoRestEnabled;
     await database.settings.clear();
     await replaceWithBackup(backup, database);
     expect(await database.settings.get('app-settings')).toMatchObject({

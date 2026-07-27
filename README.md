@@ -5,9 +5,11 @@ Repwise is a mobile-first, local-first workout tracking Progressive Web App. It 
 ## Features
 
 - Create, edit, archive, restore, search, and filter exercises.
+- Create a custom exercise directly from the active-workout picker and add it to the current workout immediately.
 - Create reusable workout templates with ordered exercises and set, repetition, and rest targets.
 - Start an empty workout or a workout from a template.
 - Record weight, repetitions, duration, warm-up state, and completion per set.
+- Automatically start a configurable rest timer after each completed set, with a gentle sound and vibration alert when supported.
 - Restore an unfinished workout after refresh or browser restart.
 - Compare the current exercise with its most recent prior session.
 - Finish workouts with explicit incomplete-set cleanup.
@@ -128,5 +130,5 @@ Repwise follows the device language by default. Open **Settings → Language** t
 - Backup export and cross-device transfer are manual.
 - Backup conflicts with the same ID and identical `updatedAt` timestamp require source-file resolution before merge.
 - Completed workouts require an explicit edit mode; edits intentionally rewrite the local historical snapshot and derived analytics.
-- Rest-timer deadlines persist locally and recover after refresh or backgrounding, but browser notification alarms are not provided while the app is closed.
+- Rest-timer deadlines persist locally and recover after refresh or backgrounding. Sound and vibration alerts require the page or installed PWA to remain open, and vibration depends on browser and device support.
 - GitHub Pages deployment requires a GitHub repository and one-time Pages source configuration.
